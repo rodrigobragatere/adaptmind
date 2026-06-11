@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
     <title>AdaptMind - Neuro-Adaptive Learning</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,9 +18,11 @@
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      /* "only light" impede o navegador de inverter as cores da página (Modo Escuro Automático do Chrome/Edge) */
+      :root { color-scheme: only light; }
       body { font-family: 'Inter', sans-serif; }
-      input, textarea, select { color: #000000; }
-      input::placeholder, textarea::placeholder { color: #64748b; }
+      input, textarea, select { color: #000000 !important; background-color: #ffffff; }
+      input::placeholder, textarea::placeholder { color: #64748b !important; }
       .custom-scrollbar::-webkit-scrollbar { width: 6px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
