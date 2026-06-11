@@ -1,10 +1,7 @@
 import { GoogleGenAI, Schema, Modality, Chat } from "@google/genai";
 
-// Ensure API Key is available safely (handles browser environments where process is undefined)
-const apiKey =
-  typeof process !== "undefined" && process.env
-    ? process.env.GEMINI_API_KEY || process.env.API_KEY || ""
-    : "";
+// As expressões process.env.* são substituídas pelo valor real no build (vite.config.ts > define)
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
 
 if (!apiKey) {
   console.warn("API Key is missing. Ensure process.env.GEMINI_API_KEY is set.");
