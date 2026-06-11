@@ -1,0 +1,7 @@
+{
+  "name": "AdaptMind",
+  "description": "Uma plataforma de ensino adaptativo baseada em neurociência e IA para alunos neurodivergentes.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (request.auth.token.email == 'geltattoorj@gmail.com' && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'name', 'email', 'role']) &&
+             data.uid is string &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.role in ['student', 'admin'];
+    }
+
+    function isValidJournalEntry(data) {
+      return data.keys().hasAll(['userId', 'text', 'date', 'time', 'createdAt']) &&
+             data.userId is string &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 10000 &&
+             data.date is string &&
+             data.time is string &&
+             data.createdAt is string;
+    }
+
+    function isValidPost(data) {
+      return data.keys().hasAll(['userId', 'userName', 'userRole', 'content', 'likes', 'comments', 'createdAt']) &&
+             data.userId is string &&
+             data.userName is string && data.userName.size() > 0 && data.userName.size() < 100 &&
+             data.userRole is string &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 5000 &&
+             data.likes is number && data.likes >= 0 &&
+             data.comments is number && data.comments >= 0 &&
+             data.createdAt is string;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && ((isOwner(userId) && request.resource.data.role == 'student') || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && ((isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin());
+      allow delete: if isAdmin();
+      
+      match /journal/{entryId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidJournalEntry(request.resource.data) && request.resource.data.userId == userId;
+        allow update: if isOwner(userId) && isValidJournalEntry(request.resource.data) && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidPost(request.resource.data) && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && isValidPost(request.resource.data) && 
+                    (isOwner(resource.data.userId) || isAdmin()) &&
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    }
+  }
+}
