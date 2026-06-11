@@ -392,8 +392,14 @@ export default function App() {
         // Ignorar se o usuário apenas fechou a janela
         return;
       }
+      if (error.code === "auth/unauthorized-domain") {
+        alert(
+          `Este domínio (${window.location.hostname}) não está autorizado no Firebase. Adicione-o em Authentication > Settings > Authorized domains no console do Firebase.`,
+        );
+        return;
+      }
       alert(
-        "Erro ao fazer login com o Google. Verifique se os pop-ups estão bloqueados.",
+        `Erro ao fazer login com o Google (${error.code || "desconhecido"}). Verifique se os pop-ups estão bloqueados.`,
       );
     }
   };
